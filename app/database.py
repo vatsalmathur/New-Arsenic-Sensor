@@ -11,10 +11,20 @@ Nothing else in the codebase needs to change.
 """
 
 import os
+import shutil
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aquasentry.db")
+
+if os.environ.get("VERCEL") or os.environ.get("VERCEL_URL"):
+    tmp_db_path = "/tmp/aquasentry.db"
+    if not os.path.exists(tmp_db_path):
+        try:
+            shutil.copy2("./aquasentry.db", tmp_db_path)
+        except Exception as e:
+            print(f"Warning: Could not copy initial DB to /tmp: {e}")
+    DATABASE_URL = f"sqlite:///{tmp_db_path}"
 
 # check_same_thread is only needed for SQLite
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
