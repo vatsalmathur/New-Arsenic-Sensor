@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaSentry — Water Safety Monitor</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="chat.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="#4d8dff" stroke-width="1.4" opacity="0.4"/>
+          <circle cx="16" cy="16" r="9" stroke="#4d8dff" stroke-width="1.4" opacity="0.7"/>
+          <circle cx="16" cy="16" r="4" fill="#4d8dff"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-name">AquaSentry</span>
+        <span class="station-tag">/ AQUA-001</span>
+      </div>
+    </div>
+    <div class="live-pill" id="connectionStatus">
+      <span class="live-dot"></span>
+      MINIBOT ONLINE
+    </div>
+  </header>
+
+<!-- NEW TABS START - You can delete this entire block to revert -->
+<style>
+.page-nav {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  margin: 0 0 20px 0;
+  overflow-x: auto;
+  border: 1px solid rgba(255,255,255,0.1);
+  scrollbar-width: none;
+}
+.page-nav::-webkit-scrollbar {
+  display: none;
+}
+.page-nav a {
+  text-decoration: none;
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.page-nav a:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+html {
+  scroll-behavior: smooth;
+}
+</style>
+<nav class="page-nav">
+  <a href="#section-simulator">Simulator</a>
+  <a href="#section-reading">Reading Detail</a>
+  <a href="#section-action">Action Plan</a>
+  <a href="#section-treatment">Treatment</a>
+  <a href="#section-report">Report</a>
+  <a href="#section-bot">Bot Knowledge</a>
+</nav>
+<!-- NEW TABS END -->
+
+  <section class="hero">
+    <div class="eyebrow">AquaSentry Robot Status — Lake Survey Patrol</div>
+
+    <div class="ring-stage">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+      <div class="core">
+        <div class="core-label">ARSENIC</div>
+        <div class="core-value">--</div>
+        <div class="core-unit">mg/L</div>
+      </div>
+    </div>
+
+    <h1 class="status-title">Awaiting <span class="hl">Reading</span></h1>
+    <p class="status-sub">
+      Run a simulation or connect the MAS-G1 device to view real-time water safety data.
+    </p>
+  </section>
+
+  <section class="panel simulator-panel" id="section-simulator" aria-labelledby="simulatorTitle">
+    <div class="panel-head">
+      <div>
+        <span class="panel-title" id="simulatorTitle">MAS-G1 device simulator</span>
+        <p class="panel-intro">Test safe, warning, and spike readings before connecting the Arduino.</p>
+      </div>
+      <span class="panel-meta" id="simulatorClock">READY</span>
+    </div>
+    <div class="simulator-screen">
+      <div class="simulator-status"><span class="simulator-dot"></span><span id="simulatorStatus">SMART CHIP LOADED</span><span id="simulatorTime">--:--</span></div>
+      <div class="simulator-tabs" id="simulatorTabs" role="tablist" aria-label="Analyte selection">
+        <button class="simulator-tab active" type="button" data-analyte="As">As</button>
+      </div>
+      <div class="simulator-analyte" id="simulatorAnalyte">ARSENIC (III) · STRIP AS-M003050</div>
+      <div class="simulator-readout"><strong id="simulatorValue">--.---</strong><span id="simulatorUnit">mg/L</span></div>
+      <div class="simulator-flag idle" id="simulatorFlag"><span></span><b id="simulatorFlagText">READY · IMPORT OR RUN DEMO</b></div>
+      <div class="simulator-graph"><div class="simulator-graph-label"><span>VOLTAMMOGRAM</span><span id="simulatorScanState">IDLE</span></div><svg viewBox="0 0 520 120" preserveAspectRatio="none" aria-label="MAS-G1 voltammogram" id="simulatorTraceSvg"></svg></div>
+      <div class="simulator-metrics"><div>PEAK V<strong id="simulatorPeakV">--</strong></div><div>NET I (µA)<strong id="simulatorNetI">--</strong></div><div>CAL R²<strong id="simulatorR2">0.9967</strong></div></div>
+      <div class="simulator-actions"><button class="btn" id="runSimulation" type="button">Run demo</button><button class="btn ghost" id="importScan" type="button">Import scan</button></div>
+      <div class="simulator-actions simulator-actions-secondary"><button class="btn ghost" id="importCalibration" type="button">Import calibration</button><button class="btn ghost" id="exportHistory" type="button">Export CSV</button></div>
+      <input type="file" id="scanFileInput" accept=".csv" multiple hidden>
+      <input type="file" id="calibrationFileInput" accept=".json" hidden>
+      <p class="simulator-note" id="simulatorNote" aria-live="polite"></p>
+      <div class="simulator-history"><div class="simulator-history-title">LAST RESULTS · STORED <span id="simulatorHistoryCount">0</span>/100</div><div id="simulatorHistoryList"></div></div>
+    </div>
+  </section>
+
+  <!-- Reading detail -->
+  <div class="panel" id="section-reading">
+    <div class="panel-head">
+      <span class="panel-title">Reading detail</span>
+      <span class="panel-meta" id="detectedMeta">WAITING FOR DATA</span>
+    </div>
+    <div class="reading-grid">
+      <div class="reading-cell">
+        <div class="k" id="contaminantName">Arsenic (As)</div>
+        <div class="v" id="readingValue">-- mg/L</div>
+        <div class="thresh" id="safeLimit">safe limit: 0.010 mg/L</div>
+      </div>
+      <div class="reading-cell">
+        <div class="k">Confidence</div>
+        <div class="v" id="confidenceValue">--%</div>
+        <div class="thresh" id="confirmationValue">pending verification</div>
+      </div>
+      <div class="reading-cell">
+        <div class="k">Likely source</div>
+        <div class="v source-value">--</div>
+        <div class="thresh" id="sourceNote">awaiting measurement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What to do right now -->
+  <div class="panel" id="section-action">
+    <div class="panel-head">
+      <span class="panel-title">What to do if there is high quantity of arsenic in water</span>
+    </div>
+    <ul class="steps">
+      <li class="step">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <div class="t">Stop drinking or cooking with this water</div>
+          <div class="d">Switch to bottled or a known-safe source until a follow-up reading confirms it's clear.</div>
+        </div>
+      </li>
+      <li class="step">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <div class="t">Boiling will not help</div>
+          <div class="d">Boiling does not remove arsenic, and can concentrate it further as water evaporates.</div>
+        </div>
+      </li>
+      <li class="step">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <div class="t">Other household uses are still fine</div>
+          <div class="d">Cleaning, laundry, and watering non-edible plants remain safe with this water.</div>
+        </div>
+      </li>
+      <li class="step">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <div class="t">A report has been prepared below</div>
+          <div class="d">Because nearby homes show the same reading, this looks like a source-level issue worth reporting.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Remediation -->
+  <div class="panel" id="section-treatment">
+    <div class="panel-head">
+      <span class="panel-title">Treatment options for arsenic</span>
+    </div>
+    <div class="remedy-grid">
+      <div class="remedy-card">
+        <span class="tag">Recommended</span>
+        <h4>Activated alumina / iron-oxide filter</h4>
+        <p>Purpose-built adsorption filters remove arsenic specifically, unlike standard carbon filters. Fits under most sinks.</p>
+      </div>
+      <div class="remedy-card">
+        <span class="tag">Higher cost</span>
+        <h4>Reverse osmosis system</h4>
+        <p>Highly effective against arsenic and most other dissolved contaminants, at a higher upfront and maintenance cost.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authority contact -->
+  <div class="panel" id="section-report">
+    <div class="panel-head">
+      <span class="panel-title">Report to your local authority</span>
+      <span class="panel-meta">3 HOMES CONFIRMED</span>
+    </div>
+
+    <div class="authority-card">
+      <div class="authority-info">
+        <div class="name">Local Water &amp; Environmental Authority</div>
+        <div class="desc">Handles groundwater contamination reports</div>
+      </div>
+      <button class="btn" onclick="alert('This would open your authority contact flow — plug in the real number/portal for your area.')">Contact now</button>
+    </div>
+
+    <div class="authority-card">
+      <div class="authority-info">
+        <div class="name">Public Health Department</div>
+        <div class="desc">For drinking water safety concerns</div>
+      </div>
+      <button class="btn ghost" onclick="alert('This would open a call or email flow to the public health department.')">View contact</button>
+    </div>
+
+    <div class="report-box" id="reportBox">
+<span class="lbl">STATION</span>    <span class="val">HOME-0142</span>
+<span class="lbl">CONTAMINANT</span> <span class="val">Arsenic (As)</span>
+<span class="lbl">READING</span>    <span class="val">0.018 mg/L</span> <span class="lbl">(limit 0.010 mg/L)</span>
+<span class="lbl">DETECTED</span>   <span class="val">Today, 07:42</span>
+<span class="lbl">CONFIRMED BY</span> <span class="val">3 nearby stations</span>
+<span class="lbl">STATUS</span>     <span class="val">Ready to send</span>
+    </div>
+  </div>
+
+  <!-- Bot explanation workspace -->
+  <div class="panel bot-panel" id="section-bot">
+    <div class="panel-head">
+      <div>
+        <span class="panel-title">Bot Knowledge Base</span>
+        <p class="panel-intro">This information is currently loaded into the AI Assistant.</p>
+      </div>
+      <span class="panel-meta">ACTIVE</span>
+    </div>
+    
+    <div class="bot-static-text" style="margin-top: 20px;">
+      
+      <div class="remedy-grid" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+        <div class="remedy-card">
+          <h4>What it is</h4>
+          <p>A small catamaran-style surface robot (1 m long, 8-20 kg) that drives itself across a lake, creek, or reservoir. At each waypoint, it pulls water into a sealed internal chamber, screens it for arsenic, and tags the reading with GPS.</p>
+          <p style="margin-top: 8px;">The sensor never touches open water to avoid fouling. Instead, the robot brings a filtered, temperature-controlled sample to the sensor, ensuring repeatable results.</p>
+          <span class="tag" style="margin-top: 12px; display: inline-block;">Screening Tool, not a certified lab instrument</span>
+        </div>
+      </div>
+
+      <div class="remedy-grid" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+        <div class="remedy-card">
+          <h4>The Problem it Solves</h4>
+          <p>Arsenic has no colour, smell, or taste. The WHO provisional guideline is 10 µg/L. You cannot find it without an instrument, and stationary lab instruments are incredibly expensive.</p>
+          <p style="margin-top: 8px;"><strong>The gap is not sensitivity, it is mobility.</strong> Today, mapping a water body means collecting bottles by hand, which is slow and expensive.</p>
+        </div>
+      </div>
+
+      <h4 style="margin: 25px 0 15px; font-family: 'Space Grotesk', sans-serif; font-size: 1rem; color: #0f172a;">AquaSentry closes that gap in three ways:</h4>
+      <ul class="steps" style="margin-bottom: 25px;">
+        <li class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <div class="t">Coverage</div>
+            <div class="d">A grid survey produces a contamination contour map, not a single reading.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <div class="t">Cost per sample</div>
+            <div class="d">Once built, each additional reading costs only reagents and time, not a lab fee and a courier.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <div class="t">Context</div>
+            <div class="d">Every arsenic value is logged with its location and supporting water-quality measurements.</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="remedy-grid" style="grid-template-columns: 1fr;">
+        <div class="remedy-card">
+          <h4>What it Achieves</h4>
+          <p><strong>Direct output:</strong> A geotagged arsenic contour map of a water body, with pH, conductivity, turbidity, and temperature logged at every point.</p>
+          <p style="margin-top: 8px;"><strong>The impact:</strong> You stop guessing which wells or ponds to test, and start testing the ones the map says are worth testing. Lab capacity goes to the samples that matter.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>MINIBOT · BATTERY 71% · LAST PATROL 12 MIN AGO</span>
+    <span>NEXT PATROL IN 48 MIN</span>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+
+<!-- AI Agent Chat Widget -->
+<div id="chat-widget-container">
+    <button id="chat-toggle-btn" onclick="toggleChat()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path>
+        </svg>
+    </button>
+    <div id="chat-window">
+        <div class="chat-header">
+            <h3>AquaSentry AI</h3>
+            <button class="close-btn" onclick="toggleChat()">&times;</button>
+        </div>
+        <div id="chat-messages-container" class="chat-messages">
+            <div class="chat-message bot-msg">Hello! I am the AquaSentry AI Agent. Ask me anything about our robot or water safety!</div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input-field" placeholder="Ask a question..." onkeypress="handleChatKeyPress(event)">
+            <button id="chat-send-btn" onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+</div>
+<script src="chat.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+AquaSentry
+Solar-assisted water robot for arsenic screening | Project summary
+
+What it is
+A small catamaran-style surface robot, roughly 1 m long and 8 to 20 kg, that drives itself across a lake, creek or reservoir. At each waypoint it stops, pulls water into a sealed internal chamber, screens it for arsenic, and tags the reading with GPS. A solar panel on the deck stretches the mission; the battery handles motor loads and cloudy stretches.
+
+The important design choice is that the sensor never touches open water. Raw seawater fouls electrodes and throws off electrochemical readings because of chloride, sulfate and suspended solids. Instead the robot brings a filtered, temperature-controlled sample to the sensor. Same cell geometry every time, so results are repeatable.
+
+Scope, stated honestly. This is a screening tool, not a certified lab instrument. It tells you which samples are worth sending to a lab. It does not replace one.
+
+How it helps
+Arsenic has no colour, smell or taste. The WHO provisional guideline is 10 µg/L. You cannot find it without an instrument, and the instruments that reach that limit (ICP-MS, graphite furnace AAS) cost orders of magnitude more than this robot and never leave the building. Field colorimetric kits travel well but read too coarsely near the threshold.
+
+So the gap is not sensitivity. It is mobility. Today, mapping a water body means a person collecting bottles by hand, carrying them to a lab, and waiting. That is slow, expensive, and produces a handful of points instead of a map.
+
+AquaSentry closes that gap three ways:
+Coverage. A grid survey produces a contamination contour, not a single reading. You can see where the problem is, not just that it exists.
+Cost per sample. Once built, each additional reading costs reagents and time, not a lab fee and a courier.
+Context. Every arsenic value is logged with its location and supporting water-quality measurements.
+
+What it achieves
+Direct output: a geotagged arsenic contour map of a water body, with pH, conductivity, turbidity and temperature logged at every point, plus a confidence range on each reading rather than a bare number.
+
+What that changes: you stop guessing which wells, ponds or stretches of creek to test, and start testing the ones the map says are worth testing. Lab capacity goes to the samples that matter.
+
+Measures of success we would report:
+Detection repeatability on a held-out set of known standards
+Number of sample points per hour of mission time
+Agreement between robot screening and accredited lab confirmation on the same samples
+Cost per sample point compared to manual collection
+
+What we are not claiming. Certified quantification. Onboard ICP-MS. Fully submerged solar operation. Unattended multi-month deployment. Regulatory compliance. The binding constraint on this project is analytical chemistry (arsenic quantification near 10 µg/L in a saline matrix), not robotics.
+
+Required before any public-health use: controlled lab validation, saltwater testing, sensor calibration, endurance testing, and comparison against an accredited laboratory method.

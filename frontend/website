@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAS-G1 Device Display Simulator</title>
+<style>
+  :root{
+    --bezel:#14181a;
+    --bezel-hi:#2b3336;
+    --bezel-lo:#0a0d0e;
+    --screen-bg:#08201c;
+    --grid-line:#123430;
+    --accent:#45e0b0;
+    --accent-dim:#2b8f73;
+    --warn:#ffb020;
+    --danger:#ff5c4d;
+    --text-primary:#eaf6f2;
+    --text-muted:#6e9089;
+    --key:#20282a;
+    --key-hi:#343f42;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#05070a;
+    font-family:'Inter',system-ui,sans-serif;
+    padding:32px 16px;
+  }
+  .device{
+    width:420px;
+    max-width:100%;
+    background:linear-gradient(180deg,var(--bezel-hi),var(--bezel) 6%,var(--bezel) 94%,var(--bezel-lo));
+    border-radius:28px;
+    padding:20px 18px 26px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 4px 12px;
+    color:var(--text-muted);
+  }
+  .brand{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.14em;
+    color:#b9c4c1;
+  }
+  .brand span{color:var(--accent);}
+  .model{
+    font-size:10px;
+    letter-spacing:0.08em;
+    color:var(--text-muted);
+  }
+  .screen{
+    position:relative;
+    background:var(--screen-bg);
+    border-radius:16px;
+    padding:14px 14px 12px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px #0e2b26, inset 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .screen::after{
+    content:"";
+    position:absolute;inset:0;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px,
+      transparent 1px, transparent 3px
+    );
+  }
+  .statusbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--text-muted);
+    padding-bottom:8px;
+    border-bottom:1px solid var(--grid-line);
+    margin-bottom:10px;
+  }
+  .statusbar .dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--accent);margin-right:5px;
+    box-shadow:0 0 6px var(--accent);
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--text-muted);
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--grid-line);
+    border-radius:6px;
+    padding:5px 9px;
+    cursor:pointer;
+    user-select:none;
+    transition:all .15s ease;
+  }
+  .tab:hover{border-color:var(--accent-dim);}
+  .tab.active{
+    color:#03130f;
+    background:var(--accent);
+    border-color:var(--accent);
+    font-weight:700;
+  }
+  .readout-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:6px 2px 2px;
+  }
+  .readout{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:40px;
+    color:var(--accent);
+    letter-spacing:0.01em;
+    text-shadow:0 0 18px rgba(69,224,176,0.35);
+    font-variant-numeric:tabular-nums;
+  }
+  .readout.warn{color:var(--warn);text-shadow:0 0 18px rgba(255,176,32,0.35);}
+  .readout.danger{color:var(--danger);text-shadow:0 0 18px rgba(255,92,77,0.35);}
+  .unit{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--text-muted);
+    padding-bottom:6px;
+  }
+  .analyte-label{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px;
+    letter-spacing:0.06em;
+    color:var(--text-primary);
+    padding:0 2px;
+  }
+  .flag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.04em;
+    padding:4px 8px;
+    border-radius:5px;
+    margin:8px 2px 10px;
+  }
+  .flag .dot{width:6px;height:6px;border-radius:50%;}
+  .flag.ok{background:rgba(69,224,176,0.12);color:var(--accent);}
+  .flag.ok .dot{background:var(--accent);box-shadow:0 0 6px var(--accent);}
+  .flag.warn{background:rgba(255,176,32,0.12);color:var(--warn);}
+  .flag.warn .dot{background:var(--warn);box-shadow:0 0 6px var(--warn);}
+  .flag.danger{background:rgba(255,92,77,0.12);color:var(--danger);}
+  .flag.danger .dot{background:var(--danger);box-shadow:0 0 6px var(--danger);}
+  .flag.idle{background:rgba(110,144,137,0.12);color:var(--text-muted);}
+  .flag.idle .dot{background:var(--text-muted);}
+  .graph-wrap{
+    background:rgba(0,0,0,0.18);
+    border:1px solid var(--grid-line);
+    border-radius:10px;
+    padding:8px 8px 4px;
+    margin-bottom:8px;
+  }
+  .graph-label{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--text-muted);
+    padding:0 2px 4px;
+  }
+  svg.trace{width:100%;height:120px;display:block;}
+  .metrics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--text-muted);
+    margin-bottom:12px;
+  }
+  .metrics div{
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--grid-line);
+    border-radius:6px;
+    padding:6px 7px;
+  }
+  .metrics b{
+    display:block;
+    font-size:12px;
+    color:var(--text-primary);
+    margin-top:2px;
+  }
+  .controls-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:4px;
+  }
+  .run-btn{
+    flex:1;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.04em;
+    background:var(--accent);
+    color:#03130f;
+    border:none;
+    border-radius:8px;
+    padding:10px 0;
+    cursor:pointer;
+    transition:transform .08s ease, opacity .15s ease;
+  }
+  .run-btn:active{transform:scale(0.97);}
+  .run-btn:disabled{opacity:0.5;cursor:default;}
+  .ghost-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--text-muted);
+    background:transparent;
+    border:1px solid var(--grid-line);
+    border-radius:8px;
+    padding:10px 12px;
+    cursor:pointer;
+  }
+  .ghost-btn:hover{color:var(--text-primary);border-color:var(--accent-dim);}
+  .history{
+    margin-top:10px;
+    border-top:1px solid var(--grid-line);
+    padding-top:8px;
+  }
+  .history-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--text-muted);
+    letter-spacing:0.06em;
+    margin-bottom:6px;
+  }
+  .history-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--text-muted);
+    padding:3px 2px;
+  }
+  .history-row b{color:var(--text-primary);font-weight:500;}
+  .history-row.ok b{color:var(--accent);}
+  .history-row.warn b{color:var(--warn);}
+  .history-row.danger b{color:var(--danger);}
+  .import-status{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--text-muted);
+    min-height:12px;
+    padding:6px 2px 0;
+  }
+  .import-status.ok{color:var(--accent);}
+  .import-status.err{color:var(--danger);}
+  .buttonbar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding-top:16px;
+  }
+  .hwbtn{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(180deg,var(--key-hi),var(--key));
+    border:1px solid #000;
+    box-shadow:0 2px 0 #000, inset 0 1px 0 rgba(255,255,255,0.08);
+    color:var(--text-muted);
+    font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    user-select:none;
+  }
+  .hwbtn:active{transform:translateY(2px);box-shadow:none;}
+  .hwbtn.center{width:52px;height:52px;font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;color:var(--accent);}
+  @media (max-width:460px){
+    .device{width:100%;}
+    .readout{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="brand-row">
+    <div class="brand">ACCU<span>SENSING</span></div>
+    <div class="model">MAS&#8209;G1 &middot; ELECTROCHEMICAL METAL ION SYSTEM</div>
+  </div>
+
+  <div class="screen">
+    <div class="statusbar">
+      <span><span class="dot"></span>SMART CHIP LOADED</span>
+      <span id="clock">--:--</span>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="analyte-label" id="analyteLabel">Arsenic (III) &middot; strip As-M003050</div>
+    <div class="readout-row">
+      <span class="readout" id="readout">-- . ---</span>
+      <span class="unit" id="unit">mg/L</span>
+    </div>
+    <div class="flag idle" id="flag"><span class="dot"></span><span id="flagText">READY &middot; INSERT SAMPLE</span></div>
+
+    <div class="graph-wrap">
+      <div class="graph-label">
+        <span>VOLTAMMOGRAM</span>
+        <span id="scanState">IDLE</span>
+      </div>
+      <svg class="trace" viewBox="0 0 380 120" id="traceSvg"></svg>
+    </div>
+
+    <div class="metrics">
+      <div>PEAK V<b id="mPeakV">--</b></div>
+      <div>NET I (&micro;A)<b id="mNetI">--</b></div>
+      <div>CAL R&sup2;<b id="mR2">--</b></div>
+    </div>
+
+    <div class="controls-row">
+      <button class="run-btn" id="importBtn">&#8613; IMPORT SCAN DATA</button>
+      <button class="ghost-btn" id="simBtn" title="Simulate a scan with synthetic data">DEMO</button>
+    </div>
+    <div class="controls-row" style="margin-top:6px;">
+      <button class="ghost-btn" id="importCalBtn" style="flex:1;" title="Load calibration.json produced by the analysis script">&#8613; IMPORT CALIBRATION</button>
+      <button class="ghost-btn" id="exportBtn" title="Export history as CSV">&#8681; CSV</button>
+    </div>
+    <input type="file" id="fileInput" accept=".csv" multiple style="display:none;">
+    <input type="file" id="calFileInput" accept=".json" style="display:none;">
+    <div class="import-status" id="importStatus"></div>
+
+    <div class="history">
+      <div class="history-title">LAST RESULTS &middot; STORED <span id="histCount">0</span>/100</div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <div class="buttonbar">
+    <div class="hwbtn" id="btnLeft">&#9664;</div>
+    <div class="hwbtn center" id="btnHome">MENU</div>
+    <div class="hwbtn" id="btnRight">&#9654;</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/webfontloader/1.6.28/webfontloader.js"></script>
+<script>
+WebFont.load({google:{families:['Space Grotesk:700','Inter:400,500','JetBrains Mono:400,700']}});
+</script>
+<script>
+(function(){
+
+  var ANALYTES = {
+    As: {
+      label:"Arsenic (III) \u00b7 strip As-M003050",
+      unit:"mg/L", peakV:-800, searchWindow:60, shoulder:40,
+      calSlope:0.8563, calIntercept:0.0096, calR2:0.9967, calSource:"default",
+      lod:0.02, quantRange:[0.03,0.50],
+      implemented:true, digits:3
+    },
+    Cu:{label:"Copper (II) \u00b7 strip Cu-M chip", unit:"mg/L", implemented:false},
+    Pb:{label:"Lead (II) \u00b7 strip Pb-M chip", unit:"mg/L", implemented:false},
+    Ni:{label:"Nickel (II) \u00b7 strip Ni-M chip", unit:"mg/L", implemented:false},
+    Cr:{label:"Chromium \u00b7 strip Cr-M chip", unit:"mg/L", implemented:false},
+    Zn:{label:"Zinc (II) \u00b7 strip Zn-M chip", unit:"mg/L", implemented:false}
+  };
+  var ORDER = ["As","Cu","Pb","Ni","Cr","Zn"];
+  var current = "As";
+  var history = {};
+  var running = false;
+
+  var tabsEl = document.getElementById('tabs');
+  var readoutEl = document.getElementById('readout');
+  var unitEl = document.getElementById('unit');
+  var analyteLabelEl = document.getElementById('analyteLabel');
+  var flagEl = document.getElementById('flag');
+  var flagTextEl = document.getElementById('flagText');
+  var traceSvg = document.getElementById('traceSvg');
+  var scanStateEl = document.getElementById('scanState');
+  var mPeakV = document.getElementById('mPeakV');
+  var mNetI = document.getElementById('mNetI');
+  var mR2 = document.getElementById('mR2');
+  var simBtn = document.getElementById('simBtn');
+  var importBtn = document.getElementById('importBtn');
+  var fileInput = document.getElementById('fileInput');
+  var importCalBtn = document.getElementById('importCalBtn');
+  var calFileInput = document.getElementById('calFileInput');
+  var importStatus = document.getElementById('importStatus');
+  var historyList = document.getElementById('historyList');
+  var histCount = document.getElementById('histCount');
+  var clockEl = document.getElementById('clock');
+
+  function tick(){
+    var d = new Date();
+    function p(n){return n<10?'0'+n:''+n;}
+    clockEl.textContent = p(d.getHours())+':'+p(d.getMinutes());
+  }
+  tick(); setInterval(tick,1000*30);
+
+  ORDER.forEach(function(key){
+    var t = document.createElement('div');
+    t.className = 'tab' + (key===current?' active':'');
+    t.textContent = key;
+    t.dataset.key = key;
+    t.addEventListener('click', function(){ selectAnalyte(key); });
+    tabsEl.appendChild(t);
+  });
+
+  function selectAnalyte(key){
+    if(running) return;
+    current = key;
+    Array.prototype.forEach.call(tabsEl.children, function(el){
+      el.classList.toggle('active', el.dataset.key===key);
+    });
+    var cfg = ANALYTES[key];
+    analyteLabelEl.textContent = cfg.label;
+    unitEl.textContent = cfg.unit || 'mg/L';
+    readoutEl.className = 'readout';
+    readoutEl.textContent = '-- . ---';
+    setFlag('idle', cfg.implemented ? 'READY \u00b7 IMPORT OR RUN DEMO' : 'INSERT '+key+'-M CHIP TO CALIBRATE');
+    mPeakV.textContent='--'; mNetI.textContent='--';
+    mR2.textContent = (cfg.calR2!=null) ? cfg.calR2.toFixed(4) : '--';
+    traceSvg.innerHTML='';
+    scanStateEl.textContent='IDLE';
+    setImportStatus('', cfg.calSource==='default' ? '' : (cfg.calSource ? 'CAL: '+cfg.calSource : ''));
+    renderHistory();
+  }
+
+  function setFlag(kind, text){
+    flagEl.className = 'flag ' + kind;
+    flagTextEl.textContent = text;
+  }
+
+  function gaussianNoise(sigma){
+    var u=0,v=0;
+    while(u===0)u=Math.random();
+    while(v===0)v=Math.random();
+    return sigma * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+
+  function generateVoltammogram(trueConc, cfg){
+    var pot=[], cur=[];
+    var trueSlope = 0.9;
+    for(var v=-1000; v<=-600; v+=5){
+      var baseline = 0.05 + 0.00015*(v+1000);
+      var peak = trueSlope*trueConc*Math.exp(-0.5*Math.pow((v-cfg.peakV)/15.0,2));
+      pot.push(v);
+      cur.push(baseline + peak + gaussianNoise(0.02));
+    }
+    return {pot:pot, cur:cur};
+  }
+
+  function smooth(cur){
+    var out = cur.slice();
+    for(var i=2;i<cur.length-2;i++){
+      out[i] = (cur[i-2]+cur[i-1]+cur[i]+cur[i+1]+cur[i+2])/5;
+    }
+    return out;
+  }
+
+  function fitBaseline(pot, cur, cfg){
+    var lo = cfg.peakV - cfg.searchWindow, hi = cfg.peakV + cfg.searchWindow;
+    var xs=[], ys=[];
+    for(var i=0;i<pot.length;i++){
+      var v = pot[i];
+      if((v>=lo-cfg.shoulder && v<lo) || (v>hi && v<=hi+cfg.shoulder)){
+        xs.push(v); ys.push(cur[i]);
+      }
+    }
+    if(xs.length<2){
+      var minC = Math.min.apply(null,cur);
+      return pot.map(function(){return minC;});
+    }
+    var n=xs.length, sx=0,sy=0,sxx=0,sxy=0;
+    for(var j=0;j<n;j++){sx+=xs[j];sy+=ys[j];sxx+=xs[j]*xs[j];sxy+=xs[j]*ys[j];}
+    var a = (n*sxy - sx*sy)/(n*sxx - sx*sx);
+    var b = (sy - a*sx)/n;
+    return pot.map(function(v){return a*v+b;});
+  }
+
+  function findPeak(pot, curSmoothed, baseline, cfg){
+    var lo = cfg.peakV - cfg.searchWindow, hi = cfg.peakV + cfg.searchWindow;
+    var bestIdx=-1, bestNet=-Infinity;
+    for(var i=0;i<pot.length;i++){
+      if(pot[i]>=lo && pot[i]<=hi){
+        var net = curSmoothed[i]-baseline[i];
+        if(net>bestNet){bestNet=net; bestIdx=i;}
+      }
+    }
+    return {
+      idx:bestIdx,
+      peakV:pot[bestIdx],
+      rawI:curSmoothed[bestIdx],
+      baseI:baseline[bestIdx],
+      netI:bestNet
+    };
+  }
+
+  function classify(conc, cfg){
+    if(conc < cfg.lod) return {kind:'idle', text:'BELOW LOD ('+cfg.lod+' '+cfg.unit+') \u00b7 NOT DETECTED'};
+    if(conc < cfg.quantRange[0]) return {kind:'warn', text:'BELOW QUANT RANGE \u00b7 ESTIMATE ONLY'};
+    if(conc > cfg.quantRange[1]) return {kind:'danger', text:'ABOVE RANGE \u00b7 DILUTE & RE-RUN'};
+    return {kind:'ok', text:'WITHIN VALIDATED RANGE'};
+  }
+
+  function drawTrace(pot, cur, baseline, peak, revealFrac){
+    var W=380,H=120, padL=6, padR=6, padT=10, padB=10;
+    var minV=Math.min.apply(null,pot), maxV=Math.max.apply(null,pot);
+    var minI=Math.min.apply(null,cur), maxI=Math.max.apply(null,cur);
+    var rangeI = (maxI-minI)||1;
+    function X(v){return padL + (v-minV)/(maxV-minV)*(W-padL-padR);}
+    function Y(i){return H-padB - (i-minI)/rangeI*(H-padT-padB);}
+
+    var nShow = Math.max(2, Math.floor(pot.length*revealFrac));
+    var pathC = 'M'+X(pot[0])+' '+Y(cur[0]);
+    for(var i=1;i<nShow;i++){ pathC += ' L'+X(pot[i])+' '+Y(cur[i]); }
+    var pathB = 'M'+X(pot[0])+' '+Y(baseline[0]);
+    for(var j=1;j<nShow;j++){ pathB += ' L'+X(pot[j])+' '+Y(baseline[j]); }
+
+    var svg = '';
+    for(var gx=0; gx<=4; gx++){
+      var xx = padL + gx*(W-padL-padR)/4;
+      svg += '<line x1="'+xx+'" y1="'+padT+'" x2="'+xx+'" y2="'+(H-padB)+'" stroke="#123430" stroke-width="1"/>';
+    }
+    for(var gy=0; gy<=3; gy++){
+      var yy = padT + gy*(H-padT-padB)/3;
+      svg += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#123430" stroke-width="1"/>';
+    }
+    svg += '<path d="'+pathB+'" fill="none" stroke="#2b8f73" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>';
+    svg += '<path d="'+pathC+'" fill="none" stroke="#45e0b0" stroke-width="2"/>';
+
+    if(revealFrac>=1 && peak){
+      var px=X(peak.peakV), py=Y(peak.rawI);
+      svg += '<circle cx="'+px+'" cy="'+py+'" r="4" fill="#45e0b0" stroke="#08201c" stroke-width="1.5"/>';
+      svg += '<line x1="'+px+'" y1="'+py+'" x2="'+px+'" y2="'+(H-padB)+'" stroke="#45e0b0" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>';
+    }
+    traceSvg.innerHTML = svg;
+  }
+
+  async function loadHistory(key){
+    try{
+      var res = await window.storage.get('history_'+key, false);
+      history[key] = res ? JSON.parse(res.value) : [];
+    }catch(e){
+      history[key] = [];
+    }
+    renderHistory();
+  }
+
+  async function saveHistory(key){
+    try{
+      await window.storage.set('history_'+key, JSON.stringify(history[key]), false);
+    }catch(e){ /* best effort */ }
+  }
+
+  function renderHistory(){
+    var list = history[current] || [];
+    histCount.textContent = list.length;
+    historyList.innerHTML = '';
+    var shown = list.slice(-4).reverse();
+    if(shown.length===0){
+      var empty = document.createElement('div');
+      empty.className='history-row';
+      empty.innerHTML = '<span>no runs yet</span><span>--</span>';
+      historyList.appendChild(empty);
+      return;
+    }
+    shown.forEach(function(r){
+      var row = document.createElement('div');
+      row.className = 'history-row '+r.kind;
+      row.innerHTML = '<span>'+r.time+'</span><b>'+r.conc.toFixed(3)+' '+r.unit+'</b>';
+      historyList.appendChild(row);
+    });
+  }
+
+  function exportCSV(){
+    var list = history[current] || [];
+    var rows = ['time,analyte,concentration_'+((ANALYTES[current]||{}).unit||'mgL')+',peak_mV,net_current_uA,status'];
+    list.forEach(function(r){
+      rows.push([r.time, current, r.conc.toFixed(4), r.peakV, r.netI.toFixed(4), r.kind].join(','));
+    });
+    var blob = new Blob([rows.join('\n')], {type:'text/csv'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'mas-g1_'+current+'_history.csv';
+    a.click();
+  }
+
+  function nowStamp(){
+    var d=new Date();
+    function p(n){return n<10?'0'+n:''+n;}
+    return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+
+  function setImportStatus(kind, text){
+    importStatus.className = 'import-status ' + (kind||'');
+    importStatus.textContent = text || '';
+  }
+
+  function setControlsBusy(busy, label){
+    running = busy;
+    importBtn.disabled = busy;
+    simBtn.disabled = busy;
+    if(busy){
+      scanStateEl.textContent = label || 'PROCESSING';
+      setFlag('idle', 'PROCESSING SCAN DATA\u2026');
+      readoutEl.className = 'readout';
+      readoutEl.textContent = '-- . ---';
+    }
+  }
+
+  /* Runs the full pipeline (smooth -> baseline -> peak -> quantify -> flag)
+     on ANY voltammogram (pot,cur arrays), whether it came from the demo
+     generator or was imported from real MAS-G1 exports / the Python script's
+     CSV output. Animates the trace then commits a history entry. */
+  function processAndDisplay(data, cfg, label){
+    var curS = smooth(data.cur);
+    var baseline = fitBaseline(data.pot, curS, cfg);
+
+    var frames = 30, frame = 0;
+    var iv = setInterval(function(){
+      frame++;
+      var frac = frame/frames;
+      drawTrace(data.pot, curS, baseline, null, Math.min(1,frac));
+      if(frame>=frames){
+        clearInterval(iv);
+        var peak = findPeak(data.pot, curS, baseline, cfg);
+        drawTrace(data.pot, curS, baseline, peak, 1);
+        scanStateEl.textContent = 'COMPLETE';
+
+        var conc = (peak.netI - cfg.calIntercept)/cfg.calSlope;
+        if(conc<0) conc = 0;
+        var status = classify(conc, cfg);
+
+        readoutEl.className = 'readout ' + (status.kind==='ok' ? '' : status.kind==='danger' ? 'danger' : 'warn');
+        readoutEl.textContent = conc.toFixed(cfg.digits);
+        setFlag(status.kind, status.text);
+
+        mPeakV.textContent = peak.peakV+' mV';
+        mNetI.textContent = peak.netI.toFixed(4);
+        mR2.textContent = (cfg.calR2!=null) ? cfg.calR2.toFixed(4) : '--';
+
+        var entry = {
+          time: label || nowStamp(),
+          conc:conc, unit:cfg.unit, peakV:peak.peakV, netI:peak.netI, kind:status.kind
+        };
+        history[current] = history[current] || [];
+        history[current].push(entry);
+        if(history[current].length>100) history[current].shift();
+        saveHistory(current);
+        renderHistory();
+
+        running = false;
+        importBtn.disabled = false;
+        simBtn.disabled = false;
+      }
+    }, 40);
+  }
+
+  function runDemo(){
+    var cfg = ANALYTES[current];
+    if(running) return;
+    if(!cfg.implemented){
+      setFlag('warn', 'NO CALIBRATION FOR '+current+' \u00b7 CONTACT ACCUSENSING');
+      return;
+    }
+    setControlsBusy(true, 'SWEEPING (SIM)');
+    setImportStatus('', '');
+    var trueConc = 0.01 + Math.random()*0.55;
+    var data = generateVoltammogram(trueConc, cfg);
+    processAndDisplay(data, cfg, nowStamp()+' \u00b7 sim');
+  }
+
+  /* --- Importing real scan data collected by mas_g1_arsenic_analysis.py ---
+     Expects the exact CSV schema that script reads/writes:
+         potential_mV,current_uA
+         -1000,0.021
+         ...
+     Multiple files can be selected at once (e.g. a folder of exported
+     scans) and are queued through the same pipeline one at a time. */
+  function parseVoltammogramCSV(text){
+    var lines = text.split(/\r?\n/).filter(function(l){return l.trim().length;});
+    if(lines.length<2) throw new Error('CSV has no data rows');
+    var header = lines[0].split(',').map(function(h){return h.trim().toLowerCase();});
+    var iPot = header.indexOf('potential_mv');
+    var iCur = header.indexOf('current_ua');
+    if(iPot===-1 || iCur===-1){
+      throw new Error('expected columns potential_mV,current_uA');
+    }
+    var pot=[], cur=[];
+    for(var i=1;i<lines.length;i++){
+      var cols = lines[i].split(',');
+      var v = parseFloat(cols[iPot]), c = parseFloat(cols[iCur]);
+      if(!isNaN(v) && !isNaN(c)){ pot.push(v); cur.push(c); }
+    }
+    if(pot.length<5) throw new Error('not enough valid rows');
+    var idx = pot.map(function(v,i){return i;});
+    idx.sort(function(a,b){return pot[a]-pot[b];});
+    return { pot: idx.map(function(i){return pot[i];}), cur: idx.map(function(i){return cur[i];}) };
+  }
+
+  function importFiles(fileList){
+    var cfg = ANALYTES[current];
+    if(!cfg.implemented){
+      setImportStatus('err', 'NO CALIBRATION FOR '+current+' \u00b7 SWITCH TO As OR IMPORT ONE');
+      return;
+    }
+    var files = Array.prototype.slice.call(fileList);
+    if(files.length===0) return;
+
+    var queue = files.slice();
+    setImportStatus('', 'IMPORTING 0/'+files.length+'\u2026');
+
+    function next(doneCount){
+      if(queue.length===0){
+        setImportStatus('ok', 'IMPORTED '+doneCount+'/'+files.length+' FILE(S)');
+        return;
+      }
+      var file = queue.shift();
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          var data = parseVoltammogramCSV(reader.result);
+          setControlsBusy(true, 'IMPORTING');
+          var label = file.name.replace(/\.csv$/i,'').slice(0,16);
+          processAndDisplay(data, cfg, label);
+          setImportStatus('', 'IMPORTING '+(doneCount+1)+'/'+files.length+'\u2026');
+          setTimeout(function(){ next(doneCount+1); }, 30*35 + 80);
+        }catch(err){
+          setImportStatus('err', file.name+': '+err.message);
+          running = false; importBtn.disabled=false; simBtn.disabled=false;
+          setTimeout(function(){ next(doneCount); }, 200);
+        }
+      };
+      reader.onerror = function(){
+        setImportStatus('err', file.name+': could not read file');
+        setTimeout(function(){ next(doneCount); }, 200);
+      };
+      reader.readAsText(file);
+    }
+    next(0);
+  }
+
+  /* --- Importing calibration.json produced by the Python script's
+     `calibrate` command --- matches the Calibration dataclass fields:
+     slope, intercept, r_squared, n_points, concentrations, peak_currents */
+  function importCalibrationFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var cal = JSON.parse(reader.result);
+        if(typeof cal.slope!=='number' || typeof cal.intercept!=='number'){
+          throw new Error('missing slope/intercept');
+        }
+        var cfg = ANALYTES[current];
+        cfg.calSlope = cal.slope;
+        cfg.calIntercept = cal.intercept;
+        cfg.calR2 = (typeof cal.r_squared==='number') ? cal.r_squared : cfg.calR2;
+        cfg.calSource = file.name;
+        cfg.implemented = true;
+        setImportStatus('ok', 'CALIBRATION LOADED ('+(cal.n_points||'?')+' STD PTS, R\u00b2='+(cfg.calR2!=null?cfg.calR2.toFixed(4):'?')+') FOR '+current);
+        mR2.textContent = (cfg.calR2!=null) ? cfg.calR2.toFixed(4) : '--';
+      }catch(err){
+        setImportStatus('err', 'bad calibration.json: '+err.message);
+      }
+    };
+    reader.onerror = function(){ setImportStatus('err', 'could not read calibration file'); };
+    reader.readAsText(file);
+  }
+
+  simBtn.addEventListener('click', runDemo);
+  importBtn.addEventListener('click', function(){
+    if(running) return;
+    fileInput.value='';
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', function(){
+    importFiles(fileInput.files);
+  });
+  importCalBtn.addEventListener('click', function(){
+    calFileInput.value='';
+    calFileInput.click();
+  });
+  calFileInput.addEventListener('change', function(){
+    if(calFileInput.files[0]) importCalibrationFile(calFileInput.files[0]);
+  });
+  document.getElementById('exportBtn').addEventListener('click', exportCSV);
+  document.getElementById('btnLeft').addEventListener('click', function(){
+    var i = ORDER.indexOf(current);
+    selectAnalyte(ORDER[(i-1+ORDER.length)%ORDER.length]);
+  });
+  document.getElementById('btnRight').addEventListener('click', function(){
+    var i = ORDER.indexOf(current);
+    selectAnalyte(ORDER[(i+1)%ORDER.length]);
+  });
+  document.getElementById('btnHome').addEventListener('click', function(){
+    if(running) return;
+    selectAnalyte('As');
+  });
+
+  ORDER.forEach(function(key){ loadHistory(key); });
+  selectAnalyte('As');
+
+})();
+</script>
+</body>
+</html>

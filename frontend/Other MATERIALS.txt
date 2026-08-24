@@ -1,0 +1,7 @@
+Ammeter
+Glass rod
+Magnets
+Baking soda
+
+Connect to own sensor
+Find location and connect to nearest sensor
