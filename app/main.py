@@ -11,9 +11,10 @@ Flow:
         --HTTP POST--> /api/readings  --> classified & stored in DB
     Website dashboard --HTTP GET--> /api/readings, /api/stats, etc.
 """
-
-from datetime import datetime, timedelta
 import os
+from dotenv import load_dotenv
+load_dotenv()
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from fastapi import FastAPI, Depends, HTTPException, Query
@@ -35,20 +36,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow the local dashboard and simple static deployments to call the API.
-# Set AQUASENTRY_ALLOWED_ORIGINS to a comma-separated list in production.
-allowed_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "AQUASENTRY_ALLOWED_ORIGINS",
-        "http://localhost:5500,http://127.0.0.1:5500,http://localhost:8001,http://127.0.0.1:8001",
-    ).split(",")
-    if origin.strip()
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -325,7 +315,7 @@ async def chat(request: ChatRequest):
     
     try:
         response = client.models.generate_content(
-            model='gemini-3.6-flash',
+            model='gemini-flash-latest',
             contents=request.message,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
