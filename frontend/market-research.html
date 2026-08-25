@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AquaSentry - Market & Economic Research</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background: #0a0f1c;
@@ -13,25 +14,98 @@
             color: #f8fafc;
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
+            scroll-behavior: smooth;
         }
+        
+        /* Modern Top Navigation Bar */
+        .top-header {
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+        }
+        .page-nav {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .page-nav::-webkit-scrollbar { display: none; }
+        .page-nav a {
+            text-decoration: none;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 6px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .page-nav a:hover, .page-nav a.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+        .page-nav a.back-btn {
+            color: #cbd5e1;
+            margin-right: auto;
+        }
+
         .research-container {
             max-width: 1000px;
-            margin: 40px auto;
+            margin: 0 auto 60px auto;
             padding: 20px;
         }
         .card {
             background: #111827;
             padding: 30px;
             border-radius: 12px;
-            margin-bottom: 30px;
+            margin-top: 40px;
             border: 1px solid rgba(255,255,255,0.05);
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            scroll-margin-top: 100px;
         }
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+        
+        .chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+
         h1 {
             color: #fff;
             font-size: 2.5rem;
-            margin-bottom: 30px;
+            margin: 40px 0 10px 0;
             text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
         }
         h2 {
             color: #38bdf8;
@@ -79,34 +153,11 @@
             color: #38bdf8;
             font-weight: 600;
         }
-        .comparison-table tr:last-child td {
-            border-bottom: none;
-        }
+        .comparison-table tr:last-child td { border-bottom: none; }
         .highlight-green { color: #4ade80; font-weight: 600; }
         .highlight-red { color: #f87171; font-weight: 600; }
         
-        .nav-link {
-            display: inline-flex;
-            align-items: center;
-            color: #94a3b8;
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-weight: 500;
-            transition: color 0.2s;
-            background: rgba(255,255,255,0.05);
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .nav-link:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
-        
-        ul.bullet-list {
-            list-style-type: none;
-            padding-left: 0;
-        }
+        ul.bullet-list { list-style-type: none; padding-left: 0; }
         ul.bullet-list li {
             position: relative;
             padding-left: 25px;
@@ -124,15 +175,26 @@
     </style>
 </head>
 <body>
+
+    <!-- Sticky Top Navigation -->
+    <header class="top-header">
+        <nav class="page-nav">
+            <a href="/" class="back-btn">← Main Dashboard</a>
+            <a href="#section-model">Economic Model</a>
+            <a href="#section-competition">Competitive Edge</a>
+            <a href="#section-industry">Market Size & Trends</a>
+        </nav>
+    </header>
+
     <div class="research-container">
-        <a href="/" class="nav-link">← Back to Main Dashboard</a>
         
-        <h1>AquaSentry: Market & Economic Research</h1>
+        <h1>AquaSentry Economic Research</h1>
+        <div class="subtitle">Financial projections, competitive analysis, and industry trends.</div>
         
         <!-- Section 1: Economic Model -->
-        <div class="card">
+        <div id="section-model" class="card">
             <h2>1. Economic Model & Projections</h2>
-            <p>Our revenue model utilizes a hybrid Hardware-Enabled SaaS (Software as a Service) approach. We generate upfront capital through the sale of the autonomous screening robots, and build long-term recurring revenue through a monthly data platform subscription (access to live mapping, alerts, and historical contour analytics).</p>
+            <p>Our revenue model utilizes a hybrid <strong>Hardware-Enabled SaaS</strong> approach. We generate upfront capital through the sale of the autonomous screening robots, and build long-term recurring revenue through a monthly data platform subscription (access to live mapping, alerts, and historical contour analytics).</p>
             
             <div class="formula-box">
                 <strong>Monthly Revenue Formula:</strong><br><br>
@@ -141,29 +203,36 @@
                 R<sub>t</sub> = Total Gross Revenue for month <em>t</em><br>
                 U<sub>t</sub> = Units sold in month <em>t</em><br>
                 P<sub>u</sub> = Price per robot unit (Est. $3,500)<br>
-                S<sub>t</sub> = Total active dashboard subscriptions in month <em>t</em><br>
+                S<sub>t</sub> = Active dashboard subscriptions in month <em>t</em><br>
                 P<sub>s</sub> = Subscription fee per month (Est. $150/mo)
             </div>
 
-            <h3>First Month Projection (Pilot Launch)</h3>
-            <p>Targeting early adopters such as local water authorities, university research departments, and environmental NGOs conducting localized field testing.</p>
-            <ul class="bullet-list">
-                <li><strong>Hardware Sales:</strong> 5 units × $3,500 = $17,500</li>
-                <li><strong>Recurring Software Revenue:</strong> 5 active users × $150 = $750</li>
-                <li><strong>Month 1 Gross Revenue:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$18,250</span></li>
-            </ul>
+            <div class="card-grid">
+                <div>
+                    <h3>First Month (Pilot Launch)</h3>
+                    <ul class="bullet-list">
+                        <li><strong>Target:</strong> Local water authorities, NGOs.</li>
+                        <li><strong>Hardware:</strong> 5 units × $3,500 = $17,500</li>
+                        <li><strong>Software:</strong> 5 users × $150 = $750</li>
+                        <li><strong>Month 1 Gross:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$18,250</span></li>
+                    </ul>
 
-            <h3>Year 1 Projection (Scaling Phase)</h3>
-            <p>Expanding direct B2B sales to municipal water boards and regional environmental surveying firms requiring rapid mapping capabilities.</p>
-            <ul class="bullet-list">
-                <li><strong>Total Hardware Sales:</strong> 120 units sold over 12 months = $420,000</li>
-                <li><strong>Recurring Software Revenue:</strong> Assuming an average of 60 active subscribers throughout the year × 12 months × $150 = $108,000</li>
-                <li><strong>Year 1 Gross Revenue:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$528,000</span></li>
-            </ul>
+                    <h3>Year 1 (Scaling Phase)</h3>
+                    <ul class="bullet-list">
+                        <li><strong>Target:</strong> Municipal water boards globally.</li>
+                        <li><strong>Hardware:</strong> 120 units sold = $420,000</li>
+                        <li><strong>Software:</strong> Avg 60 active × 12mo × $150 = $108,000</li>
+                        <li><strong>Year 1 Gross:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$528,000</span></li>
+                    </ul>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <!-- Section 2: Competitive Analysis -->
-        <div class="card">
+        <div id="section-competition" class="card">
             <h2>2. Competitive Advantage: AquaSentry vs. AccuSense</h2>
             <p>A direct analysis of our primary competitive friction points, demonstrating why AquaSentry dominates the modern screening market.</p>
             
@@ -179,7 +248,7 @@
                     <tr>
                         <td><strong>Commercial Availability</strong></td>
                         <td class="highlight-green">Ready to deploy. Immediate impact.</td>
-                        <td class="highlight-red">Does not sell till now. Stuck in pre-market.</td>
+                        <td class="highlight-red">Does not sell till now. Stuck in R&D.</td>
                     </tr>
                     <tr>
                         <td><strong>Mobility & Environment</strong></td>
@@ -188,8 +257,8 @@
                     </tr>
                     <tr>
                         <td><strong>Cost Structure</strong></td>
-                        <td class="highlight-green">Way cheaper (~$3,500 total solution).</td>
-                        <td class="highlight-red">Prohibitively expensive (traditional hardware pricing).</td>
+                        <td class="highlight-green">Disruptively cheap (~$3,500).</td>
+                        <td class="highlight-red">Prohibitively expensive (traditional pricing).</td>
                     </tr>
                     <tr>
                         <td><strong>Data Output</strong></td>
@@ -200,28 +269,112 @@
             </table>
             
             <p style="margin-top: 25px; padding: 15px; background: rgba(56, 189, 248, 0.05); border-radius: 8px;">
-                <strong>Strategic Takeaway:</strong> AccuSense is building an expensive, stationary tool that isn't even on the market yet. AquaSentry changes the paradigm from <em>"testing a sample"</em> to <em>"mapping an environment"</em>. By making the robot autonomous and orders of magnitude cheaper, we eliminate the need for technicians to manually collect bottles in boats.
+                <strong>Strategic Takeaway:</strong> AccuSense is building an expensive, stationary tool that isn't even on the market yet. AquaSentry changes the paradigm from <em>"testing a sample"</em> to <em>"mapping an environment"</em>. By making the robot autonomous and affordable, we eliminate the need for technicians to manually collect bottles in boats.
             </p>
         </div>
 
         <!-- Section 3: Industry Research -->
-        <div class="card">
+        <div id="section-industry" class="card">
             <h2>3. Market Research & Economic Trend Predictions</h2>
             <p>The global demand for decentralized, rapid water quality testing is accelerating due to environmental pressures and aging infrastructure.</p>
             
-            <h3>Target Market Size</h3>
-            <p>The Global Water Quality Monitoring market is projected to reach <strong>$7.5 Billion by 2028</strong>, growing at a CAGR of roughly 6.5%. Specifically, the segment for heavy metals (like Arsenic) and environmental surface water testing represents a highly underserved <strong>~$1.2 Billion niche</strong>.</p>
-
-            <h3>Economic Trends Driving Adoption</h3>
-            <ul class="bullet-list">
-                <li><strong>Heightened Regulatory Pressure:</strong> Governments worldwide are lowering permissible arsenic limits (the WHO standard is strictly 10 µg/L), forcing municipalities to screen more surface water sources, more frequently.</li>
-                <li><strong>The Cost of Human Labor:</strong> Traditional manual sampling is labor-intensive. It requires paying technicians to drive boats, collect samples, and transport them. Our robotic model slashes the per-sample acquisition cost by over 90%.</li>
-                <li><strong>Climate Change Anomalies:</strong> Shifting water tables and severe droughts are causing groundwater and surface water arsenic concentrations to spike unexpectedly globally, particularly in South Asia, the Americas, and parts of Europe.</li>
-            </ul>
+            <div class="card-grid">
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+                <div>
+                    <h3>Target Market Size</h3>
+                    <p>The Global Water Quality Monitoring market is projected to reach <strong>$7.5 Billion by 2028</strong>, growing at a CAGR of roughly 6.5%. Specifically, the segment for heavy metals (like Arsenic) and environmental surface water testing represents a highly underserved <strong>~$1.2 Billion niche</strong>.</p>
+                    
+                    <h3>Economic Trends Driving Adoption</h3>
+                    <ul class="bullet-list">
+                        <li><strong>Heightened Regulatory Pressure:</strong> Governments are lowering permissible arsenic limits (WHO standard is strictly 10 µg/L).</li>
+                        <li><strong>The Cost of Human Labor:</strong> Our robotic model slashes the per-sample acquisition cost by over 90% compared to technicians in boats.</li>
+                        <li><strong>Climate Change Anomalies:</strong> Shifting water tables and severe droughts are causing groundwater arsenic spikes globally.</li>
+                    </ul>
+                </div>
+            </div>
 
             <h3>AquaSentry Market Prediction</h3>
-            <p>By positioning AquaSentry as a highly affordable "screening tool", we do not compete with million-dollar certified lab instruments. Instead, we become the <strong>mandatory first step</strong>. We tell agencies exactly <em>where</em> to send their lab scientists. We predict capturing 5% of the early-stage environmental screening market within our first 36 months of full-scale production, establishing a powerful barrier to entry through our accumulated, proprietary water quality dataset.</p>
+            <p>By positioning AquaSentry as a highly affordable "screening tool", we do not compete with million-dollar certified lab instruments. Instead, we become the <strong>mandatory first step</strong>. We predict capturing 5% of the early-stage environmental screening market within our first 36 months of full-scale production, establishing a powerful barrier to entry through our accumulated, proprietary water quality dataset.</p>
         </div>
     </div>
+
+    <!-- Chart Configuration Scripts -->
+    <script>
+        // Global styling for Chart.js to match dark theme
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'Inter';
+
+        // 1. Revenue Projection Bar Chart
+        const revCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Month 1', 'Month 6', 'Month 12'],
+                datasets: [
+                    {
+                        label: 'Hardware Sales ($)',
+                        data: [17500, 105000, 420000],
+                        backgroundColor: 'rgba(56, 189, 248, 0.8)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'SaaS Subscriptions ($)',
+                        data: [750, 13500, 108000],
+                        backgroundColor: 'rgba(74, 222, 128, 0.8)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Year 1 Cumulative Revenue Projection', color: '#e2e8f0' }
+                }
+            }
+        });
+
+        // 2. Market Size Doughnut Chart
+        const mktCtx = document.getElementById('marketChart').getContext('2d');
+        new Chart(mktCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['AquaSentry Target Niche (Heavy Metals)', 'General Water Quality Testing'],
+                datasets: [{
+                    data: [1.2, 6.3], // Billions
+                    backgroundColor: [
+                        'rgba(56, 189, 248, 0.8)',
+                        'rgba(255, 255, 255, 0.1)'
+                    ],
+                    borderColor: '#111827',
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Total Addressable Market ($7.5B)', color: '#e2e8f0' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.raw + ' Billion';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
