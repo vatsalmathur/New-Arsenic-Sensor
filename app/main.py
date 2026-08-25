@@ -324,5 +324,8 @@ async def chat(request: ChatRequest):
         )
         return ChatResponse(reply=response.text)
     except Exception as e:
-        print(f"Error calling Gemini: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_str = str(e)
+        if "503" in error_str or "high demand" in error_str:
+            return ChatResponse(reply="⚠️ *System Notice:* The Google AI servers are currently experiencing extreme global demand and are temporarily overloaded. Please wait a minute and try your question again.")
+        else:
+            return ChatResponse(reply=f"⚠️ *System Notice:* AI Connection Error: {error_str}")
