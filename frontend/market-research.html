@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaSentry - Market & Economic Research</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #0a0f1c;
+            margin: 0;
+            padding: 0;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        .research-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .card {
+            background: #111827;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        h2 {
+            color: #38bdf8;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 {
+            color: #e2e8f0;
+            margin-top: 25px;
+        }
+        p {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+        }
+        .formula-box {
+            background: rgba(56, 189, 248, 0.05);
+            padding: 20px;
+            border-left: 4px solid #38bdf8;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            margin: 20px 0;
+            color: #e2e8f0;
+        }
+        .formula-box strong {
+            color: #38bdf8;
+            font-family: 'Inter', sans-serif;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .comparison-table th {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        .highlight-green { color: #4ade80; font-weight: 600; }
+        .highlight-red { color: #f87171; font-weight: 600; }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            color: #94a3b8;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: color 0.2s;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        ul.bullet-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul.bullet-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+        ul.bullet-list li::before {
+            content: "•";
+            color: #38bdf8;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="research-container">
+        <a href="/" class="nav-link">← Back to Main Dashboard</a>
+        
+        <h1>AquaSentry: Market & Economic Research</h1>
+        
+        <!-- Section 1: Economic Model -->
+        <div class="card">
+            <h2>1. Economic Model & Projections</h2>
+            <p>Our revenue model utilizes a hybrid Hardware-Enabled SaaS (Software as a Service) approach. We generate upfront capital through the sale of the autonomous screening robots, and build long-term recurring revenue through a monthly data platform subscription (access to live mapping, alerts, and historical contour analytics).</p>
+            
+            <div class="formula-box">
+                <strong>Monthly Revenue Formula:</strong><br><br>
+                R<sub>t</sub> = (U<sub>t</sub> × P<sub>u</sub>) + (S<sub>t</sub> × P<sub>s</sub>)<br><br>
+                <em>Where:</em><br>
+                R<sub>t</sub> = Total Gross Revenue for month <em>t</em><br>
+                U<sub>t</sub> = Units sold in month <em>t</em><br>
+                P<sub>u</sub> = Price per robot unit (Est. $3,500)<br>
+                S<sub>t</sub> = Total active dashboard subscriptions in month <em>t</em><br>
+                P<sub>s</sub> = Subscription fee per month (Est. $150/mo)
+            </div>
+
+            <h3>First Month Projection (Pilot Launch)</h3>
+            <p>Targeting early adopters such as local water authorities, university research departments, and environmental NGOs conducting localized field testing.</p>
+            <ul class="bullet-list">
+                <li><strong>Hardware Sales:</strong> 5 units × $3,500 = $17,500</li>
+                <li><strong>Recurring Software Revenue:</strong> 5 active users × $150 = $750</li>
+                <li><strong>Month 1 Gross Revenue:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$18,250</span></li>
+            </ul>
+
+            <h3>Year 1 Projection (Scaling Phase)</h3>
+            <p>Expanding direct B2B sales to municipal water boards and regional environmental surveying firms requiring rapid mapping capabilities.</p>
+            <ul class="bullet-list">
+                <li><strong>Total Hardware Sales:</strong> 120 units sold over 12 months = $420,000</li>
+                <li><strong>Recurring Software Revenue:</strong> Assuming an average of 60 active subscribers throughout the year × 12 months × $150 = $108,000</li>
+                <li><strong>Year 1 Gross Revenue:</strong> <span style="color: #4ade80; font-weight: bold; font-size: 1.1rem;">$528,000</span></li>
+            </ul>
+        </div>
+
+        <!-- Section 2: Competitive Analysis -->
+        <div class="card">
+            <h2>2. Competitive Advantage: AquaSentry vs. AccuSense</h2>
+            <p>A direct analysis of our primary competitive friction points, demonstrating why AquaSentry dominates the modern screening market.</p>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Market & Tech Feature</th>
+                        <th>AquaSentry</th>
+                        <th>AccuSense</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Commercial Availability</strong></td>
+                        <td class="highlight-green">Ready to deploy. Immediate impact.</td>
+                        <td class="highlight-red">Does not sell till now. Stuck in pre-market.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobility & Environment</strong></td>
+                        <td class="highlight-green">In-water autonomous surface robot. Maps the whole lake.</td>
+                        <td class="highlight-red">Stationary / Lab-bound. Not in water.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cost Structure</strong></td>
+                        <td class="highlight-green">Way cheaper (~$3,500 total solution).</td>
+                        <td class="highlight-red">Prohibitively expensive (traditional hardware pricing).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Output</strong></td>
+                        <td class="highlight-green">Live, geotagged contamination contour maps.</td>
+                        <td class="highlight-red">Single-point, isolated laboratory readings.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 25px; padding: 15px; background: rgba(56, 189, 248, 0.05); border-radius: 8px;">
+                <strong>Strategic Takeaway:</strong> AccuSense is building an expensive, stationary tool that isn't even on the market yet. AquaSentry changes the paradigm from <em>"testing a sample"</em> to <em>"mapping an environment"</em>. By making the robot autonomous and orders of magnitude cheaper, we eliminate the need for technicians to manually collect bottles in boats.
+            </p>
+        </div>
+
+        <!-- Section 3: Industry Research -->
+        <div class="card">
+            <h2>3. Market Research & Economic Trend Predictions</h2>
+            <p>The global demand for decentralized, rapid water quality testing is accelerating due to environmental pressures and aging infrastructure.</p>
+            
+            <h3>Target Market Size</h3>
+            <p>The Global Water Quality Monitoring market is projected to reach <strong>$7.5 Billion by 2028</strong>, growing at a CAGR of roughly 6.5%. Specifically, the segment for heavy metals (like Arsenic) and environmental surface water testing represents a highly underserved <strong>~$1.2 Billion niche</strong>.</p>
+
+            <h3>Economic Trends Driving Adoption</h3>
+            <ul class="bullet-list">
+                <li><strong>Heightened Regulatory Pressure:</strong> Governments worldwide are lowering permissible arsenic limits (the WHO standard is strictly 10 µg/L), forcing municipalities to screen more surface water sources, more frequently.</li>
+                <li><strong>The Cost of Human Labor:</strong> Traditional manual sampling is labor-intensive. It requires paying technicians to drive boats, collect samples, and transport them. Our robotic model slashes the per-sample acquisition cost by over 90%.</li>
+                <li><strong>Climate Change Anomalies:</strong> Shifting water tables and severe droughts are causing groundwater and surface water arsenic concentrations to spike unexpectedly globally, particularly in South Asia, the Americas, and parts of Europe.</li>
+            </ul>
+
+            <h3>AquaSentry Market Prediction</h3>
+            <p>By positioning AquaSentry as a highly affordable "screening tool", we do not compete with million-dollar certified lab instruments. Instead, we become the <strong>mandatory first step</strong>. We tell agencies exactly <em>where</em> to send their lab scientists. We predict capturing 5% of the early-stage environmental screening market within our first 36 months of full-scale production, establishing a powerful barrier to entry through our accumulated, proprietary water quality dataset.</p>
+        </div>
+    </div>
+</body>
+</html>
